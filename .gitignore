@@ -1,59 +1,29 @@
-# ========================================================================
-# 1. Frontend (Next.js) - ルート配下の frontend/ フォルダに対応
-# ========================================================================
-# dependencies
-**/frontend/node_modules/
-**/frontend/.pnp
-**/frontend/.pnp.js
-**/frontend/.yarn/install-state.gz
-
-# testing
-**/frontend/coverage/
-
-# next.js
-**/frontend/.next/
-**/frontend/out/
-
-# production
-**/frontend/build/
-
-# debug
-**/frontend/npm-debug.log*
-**/frontend/yarn-debug.log*
-**/frontend/yarn-error.log*
-
-# local env files
-**/frontend/.env*.local
-
-# vercel
-**/frontend/.vercel
-
-# typescript
-**/frontend/*.tsbuildinfo
-**/frontend/next-env.d.ts
-
-
-# ========================================================================
-# 2. Backend (Python + FastAPI) - ルート配下の backend/ フォルダに対応
-# ========================================================================
-**/backend/__pycache__/
-**/backend/*.pyc
-**/backend/*.pyo
-**/backend/*.pyd
-**/backend/.pytest_cache/
-**/backend/.venv/
-**/backend/venv/
-**/backend/env/
-
-
-# ========================================================================
-# 3. Infrastructure & OS Common (Docker, DB, Mac/Windows)
-# ========================================================================
-# Docker / Databases
-postgres_data/
+# Environment
 .env
+.env.local
+
+# Node
+node_modules/
+.next/
+out/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Docker
+postgres_data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
 
 # OS
 .DS_Store
 Thumbs.db
-*.pem
