@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # データベース (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: cooking_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cooking_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # バックエンド (Python + FastAPI)
+  backend:
+    build: ./backend
+    container_name: cooking_backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  # フロントエンド (Next.js + TypeScript)
+  frontend:
+    build: ./frontend
+    container_name: cooking_frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - WATCHPACK_POLLING=true # Windows環境でのホットリロード対策
+    tty: true
+
+volumes:
+  postgres_data:
