@@ -40,7 +40,7 @@ def upgrade() -> None:
     sa.Column('instructions', sa.Text(), nullable=False),
     sa.Column('image_url', sa.String(length=500), nullable=True),
     sa.Column('user_id', sa.dialects.postgresql.UUID(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), onupdate=sa.func.now(), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), onupdate=sa.func.now(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
