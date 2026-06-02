@@ -1,6 +1,23 @@
-# 🍳 Recipe Share App
+# 🍳 ふわっとレシピ
 
-レシピ共有アプリのモノレポ構成です。
+## 企画
+みんなで料理レシピを投稿できるwebサイト
+
+## アーキテクチャ図
+
+<!-- TODO: システム構成図（C4 / 簡易構成図）をここに貼る。draw.io / Mermaid いずれでも可。-->
+※追って更新します。
+
+## ディレクトリ構成
+
+<!-- TODO: 最後に書き加える。-->
+※追って更新します。
+
+## ドキュメント
+- [要件定義書](./docs/要件定義.md)
+- [画面設計書](./docs/画面設計.md)
+- [API設計書](./docs/API設計.md)
+- [DB設計書](./docs/DB設計.md)
 
 ## 技術スタック
 
@@ -11,29 +28,58 @@
 | データベース | PostgreSQL 16 |
 | コンテナ | Docker / Docker Compose |
 
-## ディレクトリ構成
+## ブランチ運用ルール
+
+### ブランチ構成
 
 ```
-recipe-app/
-├── docker-compose.yml
-├── .env.example
-├── frontend/          # Next.js
-│   ├── Dockerfile.dev
-│   └── src/
-│       ├── app/       # ページ (App Router)
-│       ├── lib/       # API クライアント・認証
-│       └── types/     # 型定義
-└── backend/           # FastAPI
-    ├── Dockerfile.dev
-    ├── requirements.txt
-    └── app/
-        ├── api/v1/    # エンドポイント
-        ├── core/      # 設定・DB・認証
-        ├── models/    # SQLAlchemy モデル
-        └── schemas/   # Pydantic スキーマ
+main        ← 本番リリース用（直接pushしない）
+ └── develop ← 統合ブランチ（各featureのマージ先）
+       └── feature/xxx ← 各担当者の作業ブランチ
 ```
 
-## 🚀 セットアップ（初回）
+### 作業の流れ
+
+```bash
+# 1. developブランチを最新にする
+git switch develop
+git pull origin develop
+
+# 2. featureブランチを作成（developから派生）
+git switch -c feature/作業内容
+
+# 3. 作業・コミット
+git add .
+git commit -m "feat: 〇〇を実装"
+
+# 4. developにPull Requestを出す
+git push origin feature/作業内容
+# → GitHubでPRを作成 → レビュー → developにマージ
+```
+
+### ブランチ命名規則
+
+| 種別 | 形式 | 例 |
+|---|---|---|
+| 環境構築 | `feature/setup-xxx` | `feature/setup-docker` |
+| 機能追加 | `feature/add-xxx` | `feature/add-board-crud` |
+| バグ修正 | `fix/xxx` | `fix/auth-middleware` |
+| ドキュメント | `docs/xxx` | `docs/design-document` |
+
+### コミットメッセージ規則
+
+| プレフィックス | 用途 |
+|---|---|
+| `feat:` | 新機能の追加 |
+| `fix:` | バグ修正 |
+| `docs:` | ドキュメントのみの変更 |
+| `chore:` | 設定ファイル・環境構築 |
+| `test:` | テストの追加・修正 |
+| `refactor:` | リファクタリング |
+
+---
+
+## セットアップ（初回）
 
 ### 1. リポジトリをクローン
 
@@ -61,7 +107,7 @@ docker compose up --build
 | バックエンド API | http://localhost:8000 |
 | API ドキュメント | http://localhost:8000/docs |
 
-## 🔄 日常の開発フロー
+## 日常の開発フロー
 
 ```bash
 # 起動
@@ -78,40 +124,10 @@ docker compose logs -f backend
 docker compose logs -f frontend
 ```
 
-## 🧪 テスト実行
+## テスト実行
 
 ```bash
 # バックエンドのテスト
 docker compose exec backend pytest tests/ -v
 ```
 
-## API エンドポイント一覧
-
-### 認証
-| メソッド | パス | 説明 |
-|---------|------|------|
-| POST | /api/v1/auth/register | ユーザー登録 |
-| POST | /api/v1/auth/login | ログイン |
-
-### レシピ
-| メソッド | パス | 認証 | 説明 |
-|---------|------|------|------|
-| GET | /api/v1/recipes/ | 不要 | レシピ一覧 |
-| GET | /api/v1/recipes/{id} | 不要 | レシピ詳細 |
-| POST | /api/v1/recipes/ | 必要 | レシピ作成 |
-| PUT | /api/v1/recipes/{id} | 必要 | レシピ更新（本人 or 管理者）|
-| DELETE | /api/v1/recipes/{id} | 必要 | レシピ削除（本人 or 管理者）|
-
-### ユーザー
-| メソッド | パス | 認証 | 説明 |
-|---------|------|------|------|
-| GET | /api/v1/users/me | 必要 | 自分の情報 |
-| GET | /api/v1/users/ | 管理者のみ | ユーザー一覧 |
-
-## 認可ロール
-
-| ロール | できること |
-|-------|-----------|
-| 未ログイン | レシピ閲覧のみ |
-| 一般ユーザー | レシピ閲覧・自分のレシピのCRUD |
-| 管理者 | 全レシピ・全ユーザーの管理 |
