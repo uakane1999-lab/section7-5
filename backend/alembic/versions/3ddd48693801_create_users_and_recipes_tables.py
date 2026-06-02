@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.create_table('users',
-    sa.Column('id', sa.dialects.postgresql.UUID(), nullable=False),
+    sa.Column('id', sa.dialects.postgresql.UUID(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('firebase_uid', sa.String(length=128), nullable=False),
     sa.Column('username', sa.String(length=50), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
@@ -34,7 +34,7 @@ def upgrade() -> None:
     sa.Index('ix_users_firebase_uid', 'firebase_uid')
     )
     op.create_table('recipes',
-    sa.Column('id', sa.dialects.postgresql.UUID(), nullable=False),
+    sa.Column('id', sa.dialects.postgresql.UUID(), server_default=sa.text('gen_random_uuid()'), nullable=False),
     sa.Column('title', sa.String(length=200), nullable=False),
     sa.Column('ingredients', sa.Text(), nullable=False),
     sa.Column('instructions', sa.Text(), nullable=False),
