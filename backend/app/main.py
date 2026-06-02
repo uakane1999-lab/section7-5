@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.router import api_router
-from app.core.database import engine, Base
+# from app.core.database import engine, Base
 import logging
 
 # ログ設定（本番環境ではDEBUGログを出さない）
@@ -11,7 +11,7 @@ logging.basicConfig(level=log_level)
 logger = logging.getLogger(__name__)
 
 # テーブル作成
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Recipe Share API",
