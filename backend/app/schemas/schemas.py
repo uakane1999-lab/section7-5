@@ -1,20 +1,16 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
+import uuid
 
 
 # ── User ──────────────────────────────────────
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-
-
 class UserResponse(BaseModel):
-    id: int
+    id: uuid.UUID
     username: str
     email: str
-    is_admin: bool
+    avatar_url: Optional[str]
+    role: str
     created_at: datetime
 
     class Config:
@@ -22,41 +18,58 @@ class UserResponse(BaseModel):
 
 
 # ── Auth ──────────────────────────────────────
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
+class RegisterRequest(BaseModel):
+    firebase_uid: str
+    username: str
+    email: EmailStr
 
 
 # ── Recipe ────────────────────────────────────
 class RecipeCreate(BaseModel):
     title: str
-    description: Optional[str] = None
-    ingredients: List[str]
-    steps: List[str]
+    ingredients: str
+    instructions: str
 
 
 class RecipeUpdate(BaseModel):
     title: Optional[str] = None
-    description: Optional[str] = None
-    ingredients: Optional[List[str]] = None
-    steps: Optional[List[str]] = None
+    ingredients: Optional[str] = None
+    instructions: Optional[str] = None
 
 
 class RecipeResponse(BaseModel):
-    id: int
+    id: uuid.UUID
     title: str
-    description: Optional[str]
-    ingredients: List[str]
-    steps: List[str]
-    author_id: int
-    author: UserResponse
+    ingredients: str
+    instructions: str
+    image_url: Optional[str]
+    user_id: uuid.UUID
+    user: UserResponse
     created_at: datetime
-    updated_at: Optional[datetime]
+    updated_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class RecipeListResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    recipes: List[RecipeResponse]
+
+
+class MyRecipeResponse(BaseModel):
+    id: uuid.UUID
+    title: str
+    image_url: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MyRecipeListResponse(BaseModel):
+    total: int
+    recipes: List[MyRecipeResponse]

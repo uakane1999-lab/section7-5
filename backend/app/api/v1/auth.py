@@ -1,25 +1,25 @@
-import json
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.core.security import verify_password, get_password_hash, create_access_token
 from app.models.models import User
-from app.schemas.schemas import UserCreate, UserResponse, Token, LoginRequest
+from app.schemas.schemas import RegisterRequest, UserResponse
 
 router = APIRouter()
 
 
 @router.post("/register", response_model=UserResponse, status_code=201)
-def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == user_in.email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
-    if db.query(User).filter(User.username == user_in.username).first():
-        raise HTTPException(status_code=400, detail="Username already taken")
+def register(req: RegisterRequest, db: Session = Depends(get_db)):
+    # メール重複チェック
+    if db.query(User).filter(User.email == req.email).first():
+        raise HTTPException(status_code=409, detail="このメールアドレスはすでに登録されています")
+    # ユーザー名重複チェック
+    if db.query(User).filter(User.username == req.username).first():
+        raise HTTPException(status_code=409, detail="このユーザー名はすでに使われています")
 
     user = User(
-        username=user_in.username,
-        email=user_in.email,
-        hashed_password=get_password_hash(user_in.password),
+        firebase_uid=req.firebase_uid,
+        username=req.username,
+        email=req.email,
     )
     db.add(user)
     db.commit()
@@ -27,11 +27,7 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     return user
 
 
-@router.post("/login", response_model=Token)
-def login(login_req: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == login_req.email).first()
-    if not user or not verify_password(login_req.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+@router.post("/login", response_model=UserResponse)
+def login(db: Session = Depends(get_db)):
+    # TODO: #4完了後にFirebase Token検証を追加
+    raise HTTPException(status_code=401, detail="認証機能実装後に有効化されます")
