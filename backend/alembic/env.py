@@ -1,14 +1,25 @@
+import sys
+import os
+# 最優先でカレントディレクトリ（/app）をパスに追加
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
+
+# 1. 大元の Base をインポート
 from app.core.database import Base
-from app.models.models import User, Recipe
+
+# 2. 【ここが超重要】モデルのファイルを「モジュールオブジェクト」として直接インポートする
+# これにより、確実に Python が models.py の中身を評価し、Base.metadata にテーブルが登録される
+import app.models.models as project_models
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# 3. 登録されたメタデータを渡す
 target_metadata = Base.metadata
 
 
