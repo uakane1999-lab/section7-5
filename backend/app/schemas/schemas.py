@@ -83,3 +83,18 @@ class RecipeListResponse(BaseModel):
     limit: int
     recipes: list[RecipeResponse]
     
+
+class MyRecipeResponse(BaseModel):
+    id: UUID
+    title: str
+    image_url: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MyRecipeListResponse(BaseModel):
+    total: int
+    recipes: list[MyRecipeResponse]
