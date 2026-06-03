@@ -27,9 +27,9 @@ async function request<T>(
   return res.json();
 }
 
-// authApiは削除（Firebase Authで認証するため不要）
+// authApiはFirebase Authで認証するため不要
 
-// Recipes　id関連をstringに変更 + listにkeyword追加
+// Recipes
 export const recipeApi = {
   list: (keyword?: string) =>
     request<Recipe[]>(

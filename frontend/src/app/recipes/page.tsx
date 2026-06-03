@@ -54,13 +54,8 @@ export default function RecipesPage() {
               <Link key={r.id} href={`/recipes/${r.id}`}>
                 <div style={cardStyle}>
                   <h2 style={{ fontSize: 18, marginBottom: 4 }}>{r.title}</h2>
-                  {r.description && (
-                    <p style={{ color: "#666", fontSize: 14 }}>
-                      {r.description}
-                    </p>
-                  )}
                   <p style={{ fontSize: 12, color: "#999", marginTop: 8 }}>
-                    by {r.author.username}
+                    by {r.user.username}
                   </p>
                 </div>
               </Link>
