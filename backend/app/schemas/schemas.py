@@ -71,7 +71,7 @@ class RecipeResponse(BaseModel):
     image_url: Optional[str]
     user: RecipeUserResponse
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None  # ← Optional に変更
 
     class Config:
         from_attributes = True

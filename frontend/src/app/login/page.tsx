@@ -20,8 +20,8 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const token = await authApi.login(email, password);
-      await login(token.access_token);
+      const { id_token } = await authApi.login(email, password);
+      await login(id_token);
       router.push("/recipes");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "ログインに失敗しました");
