@@ -1,13 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import RecipeForm from "@/components/RecipeForm";
 import { recipeApi } from "@/lib/api";
 
 export default function RecipeEditPage() {
   const router = useRouter();
-
-  const recipeId = 1; // 仮。あとでURLのidから取得する
+  const params = useParams();
+  const recipeId = Number(params.id);
 
   const handleUpdate = async (data: {
     title: string;
