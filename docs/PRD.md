@@ -102,11 +102,11 @@ Firebase Authenticationを使用し、パスワードなどの重要情報を安
 
 ### 9. 技術要件（Tech Requirements）
 
-- フロントエンド：Next.js (v15) + TypeScript + Tailwind CSS （ローカル起動による爆速ホットリロード）
+- フロントエンド：Next.js + TypeScript + Tailwind CSS （ローカル起動による爆速ホットリロード）
 
 - バックエンド：Python + FastAPI （Docker Composeによるコンテナ起動）
 
-- データベース：PostgreSQL (Dockerイメージ：postgres:15-alpine)
+- データベース：PostgreSQL
 
 - 画像ストレージ：Cloudinary (API経由で画像URLを即時生成、DBにはURL文字列のみを保存)
 
