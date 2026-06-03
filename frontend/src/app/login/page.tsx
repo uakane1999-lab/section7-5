@@ -1,3 +1,4 @@
+// ログイン画面
 "use client";
 
 import { useState } from "react";
@@ -29,29 +30,61 @@ export default function LoginPage() {
     <div style={container}>
       <h1 style={{ marginBottom: 24 }}>🔐 ログイン</h1>
       <form onSubmit={handleSubmit}>
-        <input style={inputStyle} type="email" placeholder="メールアドレス" value={email}
-          onChange={(e) => setEmail(e.target.value)} required />
-        <input style={inputStyle} type="password" placeholder="パスワード" value={password}
-          onChange={(e) => setPassword(e.target.value)} required />
+        <input
+          style={inputStyle}
+          type="email"
+          placeholder="メールアドレス"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          style={inputStyle}
+          type="password"
+          placeholder="パスワード"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         {error && <p style={{ color: "red", marginBottom: 8 }}>{error}</p>}
-        <button type="submit" style={btnStyle}>ログイン</button>
+        <button type="submit" style={btnStyle}>
+          ログイン
+        </button>
       </form>
       <p style={{ marginTop: 16, fontSize: 14 }}>
-        アカウントをお持ちでない方は <Link href="/register" style={{ color: "#2196F3" }}>新規登録</Link>
+        アカウントをお持ちでない方は{" "}
+        <Link href="/register" style={{ color: "#2196F3" }}>
+          新規登録
+        </Link>
       </p>
     </div>
   );
 }
 
 const container: React.CSSProperties = {
-  maxWidth: 400, margin: "80px auto", padding: 32, background: "white",
-  borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  maxWidth: 400,
+  margin: "80px auto",
+  padding: 32,
+  background: "white",
+  borderRadius: 8,
+  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
 };
 const inputStyle: React.CSSProperties = {
-  display: "block", width: "100%", padding: "10px 12px", marginBottom: 12,
-  border: "1px solid #ddd", borderRadius: 6, fontSize: 14,
+  display: "block",
+  width: "100%",
+  padding: "10px 12px",
+  marginBottom: 12,
+  border: "1px solid #ddd",
+  borderRadius: 6,
+  fontSize: 14,
 };
 const btnStyle: React.CSSProperties = {
-  width: "100%", padding: "10px", background: "#2196F3", color: "white",
-  border: "none", borderRadius: 6, fontSize: 16, cursor: "pointer",
+  width: "100%",
+  padding: "10px",
+  background: "#2196F3",
+  color: "white",
+  border: "none",
+  borderRadius: 6,
+  fontSize: 16,
+  cursor: "pointer",
 };

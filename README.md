@@ -1,19 +1,23 @@
 # 🍳 ふわっとレシピ
 
 ## 企画
+
 みんなで料理レシピを投稿できるwebサイト
 
 ## アーキテクチャ図
 
 <!-- TODO: システム構成図（C4 / 簡易構成図）をここに貼る。draw.io / Mermaid いずれでも可。-->
+
 ※追って更新します。
 
 ## ディレクトリ構成
 
 <!-- TODO: 最後に書き加える。-->
+
 ※追って更新します。
 
 ## ドキュメント
+
 - [要件定義書](./docs/要件定義.md)
 - [画面設計書](./docs/画面設計.md)
 - [API設計書](./docs/API設計.md)
@@ -21,12 +25,12 @@
 
 ## 技術スタック
 
-| 役割 | 技術 |
-|------|------|
+| 役割           | 技術                    |
+| -------------- | ----------------------- |
 | フロントエンド | Next.js 14 + TypeScript |
-| バックエンド | Python 3.12 + FastAPI |
-| データベース | PostgreSQL 16 |
-| コンテナ | Docker / Docker Compose |
+| バックエンド   | Python 3.12 + FastAPI   |
+| データベース   | PostgreSQL 16           |
+| コンテナ       | Docker / Docker Compose |
 
 ## ブランチ運用ルール
 
@@ -59,23 +63,23 @@ git push origin feature/作業内容
 
 ### ブランチ命名規則
 
-| 種別 | 形式 | 例 |
-|---|---|---|
-| 環境構築 | `feature/setup-xxx` | `feature/setup-docker` |
-| 機能追加 | `feature/add-xxx` | `feature/add-board-crud` |
-| バグ修正 | `fix/xxx` | `fix/auth-middleware` |
-| ドキュメント | `docs/xxx` | `docs/design-document` |
+| 種別         | 形式                | 例                       |
+| ------------ | ------------------- | ------------------------ |
+| 環境構築     | `feature/setup-xxx` | `feature/setup-docker`   |
+| 機能追加     | `feature/add-xxx`   | `feature/add-board-crud` |
+| バグ修正     | `fix/xxx`           | `fix/auth-middleware`    |
+| ドキュメント | `docs/xxx`          | `docs/design-document`   |
 
 ### コミットメッセージ規則
 
-| プレフィックス | 用途 |
-|---|---|
-| `feat:` | 新機能の追加 |
-| `fix:` | バグ修正 |
-| `docs:` | ドキュメントのみの変更 |
-| `chore:` | 設定ファイル・環境構築 |
-| `test:` | テストの追加・修正 |
-| `refactor:` | リファクタリング |
+| プレフィックス | 用途                   |
+| -------------- | ---------------------- |
+| `feat:`        | 新機能の追加           |
+| `fix:`         | バグ修正               |
+| `docs:`        | ドキュメントのみの変更 |
+| `chore:`       | 設定ファイル・環境構築 |
+| `test:`        | テストの追加・修正     |
+| `refactor:`    | リファクタリング       |
 
 ---
 
@@ -101,10 +105,10 @@ cp .env.example .env
 docker compose up --build
 ```
 
-| サービス | URL |
-|---------|-----|
-| フロントエンド | http://localhost:3000 |
-| バックエンド API | http://localhost:8000 |
+| サービス         | URL                        |
+| ---------------- | -------------------------- |
+| フロントエンド   | http://localhost:3000      |
+| バックエンド API | http://localhost:8000      |
 | API ドキュメント | http://localhost:8000/docs |
 
 ## 日常の開発フロー
@@ -130,4 +134,3 @@ docker compose logs -f frontend
 # バックエンドのテスト
 docker compose exec backend pytest tests/ -v
 ```
-
