@@ -57,6 +57,13 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
     firebase_uid = decoded_token.get("uid")
     email = decoded_token.get("email")
 
+    # uid・emailが取得できない場合はエラー
+    if not firebase_uid or not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid token: uid or email is missing"
+        )
+
     # 既存ユーザーチェック
     existing_user = db.query(User).filter(
         (User.firebase_uid == firebase_uid) | (User.email == email)
@@ -85,7 +92,6 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
         "role": user.role,
         "created_at": user.created_at.isoformat() if user.created_at else None,
     }
-
 
 @router.post("/login", response_model=LoginResponse, status_code=status.HTTP_200_OK)
 async def login(request: LoginRequest, db: Session = Depends(get_db)):
