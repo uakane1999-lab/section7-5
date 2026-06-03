@@ -1,10 +1,12 @@
+import os
+import json
 import firebase_admin
 from firebase_admin import credentials, auth
-from app.core.config import settings
-import os
 
-# Firebase Admin SDK の初期化
-cred = credentials.Certificate(os.path.join(os.path.dirname(__file__), '../../', settings.FIREBASE_KEY_PATH))
+
+# 環境変数からJSON文字列として読み込む
+firebase_credentials = json.loads(os.environ["FIREBASE_CREDENTIALS_JSON"])
+cred = credentials.Certificate(firebase_credentials)
 firebase_app = firebase_admin.initialize_app(cred)
 
 
