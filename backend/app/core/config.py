@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
     ENVIRONMENT: str = "development"
+    
+    # Firebase
+    FIREBASE_KEY_PATH: str = "firebase-key.json"
+    FIREBASE_PROJECT_ID: str = "teamb-recipe-app"
 
     # Cloudinary
     CLOUDINARY_CLOUD_NAME: str = ""

@@ -1,15 +1,21 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
-import uuid
+from uuid import UUID
 
 
 # ── User ──────────────────────────────────────
+class UserCreate(BaseModel):
+    firebase_uid: str
+    username: str
+    email: EmailStr
+
+
 class UserResponse(BaseModel):
-    id: uuid.UUID
+    id: UUID
     username: str
     email: str
-    avatar_url: Optional[str]
+    avatar_url: Optional[str] = None
     role: str
     created_at: datetime
 
@@ -18,10 +24,19 @@ class UserResponse(BaseModel):
 
 
 # ── Auth ──────────────────────────────────────
-class RegisterRequest(BaseModel):
-    firebase_uid: str
+class LoginRequest(BaseModel):
+    id_token: str
+
+
+class UserMeResponse(BaseModel):
+    id: UUID
     username: str
-    email: EmailStr
+    email: str
+    avatar_url: Optional[str]
+    role: str
+
+    class Config:
+        from_attributes = True
 
 
 # ── Recipe ────────────────────────────────────
@@ -29,22 +44,32 @@ class RecipeCreate(BaseModel):
     title: str
     ingredients: str
     instructions: str
+    image_url: Optional[str] = None
 
 
 class RecipeUpdate(BaseModel):
     title: Optional[str] = None
     ingredients: Optional[str] = None
     instructions: Optional[str] = None
+    image_url: Optional[str] = None
+
+
+class RecipeUserResponse(BaseModel):
+    id: UUID
+    username: str
+    avatar_url: Optional[str]
+
+    class Config:
+        from_attributes = True
 
 
 class RecipeResponse(BaseModel):
-    id: uuid.UUID
+    id: UUID
     title: str
     ingredients: str
     instructions: str
     image_url: Optional[str]
-    user_id: uuid.UUID
-    user: UserResponse
+    user: RecipeUserResponse
     created_at: datetime
     updated_at: datetime
 
@@ -56,20 +81,4 @@ class RecipeListResponse(BaseModel):
     total: int
     page: int
     limit: int
-    recipes: List[RecipeResponse]
-
-
-class MyRecipeResponse(BaseModel):
-    id: uuid.UUID
-    title: str
-    image_url: Optional[str]
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-class MyRecipeListResponse(BaseModel):
-    total: int
-    recipes: List[MyRecipeResponse]
+    recipes: list[RecipeResponse]
