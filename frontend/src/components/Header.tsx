@@ -1,18 +1,17 @@
 "use client";
 
-import Link from "next/link"; // 正しいNext.jsのLinkに変えます
-import { useRouter } from "next/navigation"; // Next.js用のルーター
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const router = useRouter();
 
-  // ブラウザ環境のときだけtokenをチェックするNext.js用の安全な書き方
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    router.push("/"); // Next.jsの安全な画面遷移
+    router.push("/");
     router.refresh();
   };
 
@@ -25,7 +24,6 @@ export default function Header() {
       </h1>
 
       <nav style={styles.nav}>
-        {/* Next.jsでは to="/" ではなく href="/" と書きます */}
         <Link href="/" style={styles.link}>
           レシピ一覧
         </Link>
@@ -51,26 +49,40 @@ export default function Header() {
   );
 }
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "15px 30px",
+    padding: "12px 24px",
     background: "#fff",
-    borderBottom: "1px solid #f3ebe1",
+    borderBottom: "1px solid #eee",
+    position: "sticky",
+    top: 0,
+    zIndex: 100,
   },
-  logo: { margin: 0, fontSize: "20px" },
-  logoLink: { color: "#5c4033", textDecoration: "none", fontWeight: "bold" },
-  nav: { display: "flex", gap: "20px", alignItems: "center" },
-  link: { color: "#6e5643", textDecoration: "none", fontSize: "15px" },
+  logo: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  logoLink: {
+    color: "#333",
+  },
+  nav: {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+  },
+  link: {
+    color: "#333",
+    fontSize: 14,
+  },
   logoutButton: {
     background: "none",
-    border: "1px solid #dcd0c0",
-    color: "#8b7355",
+    border: "1px solid #ccc",
+    borderRadius: 6,
     padding: "6px 12px",
-    borderRadius: "6px",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: 14,
   },
 };
