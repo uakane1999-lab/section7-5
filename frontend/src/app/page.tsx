@@ -55,7 +55,7 @@ const MOCK_RECIPES: Recipe[] = [
 
 // 画像の割り当てを分かりやすくするためのURLリスト
 const RECIPE_IMAGES: { [key: string]: string } = {
-  "1": "https://images.unsplash.com/photo-1595295333158-4742f28fbe93?q=80&w=400", // オムライス
+  "1": "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?q=80&w=400", // オムライス
   "2": "https://images.unsplash.com/photo-1580442151529-343f2f6e0e27?q=80&w=400", // 変更：今度こそ焼き魚・煮魚系の和食画像！
   "3": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400", // サラダ
   "4": "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?q=80&w=400", // カレー
