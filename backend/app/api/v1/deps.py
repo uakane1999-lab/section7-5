@@ -1,31 +1,40 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.core.security import decode_token
+from app.core.security import verify_id_token
 from app.models.models import User
 
-security = HTTPBearer()
 
-
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db),
+async def get_current_user(
+    authorization: str = Header(None),
+    db: Session = Depends(get_db)
 ) -> User:
-    token = credentials.credentials
-    payload = decode_token(token)
-    if not payload:
+    if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="Missing authorization header"
         )
-    user = db.query(User).filter(User.id == payload.get("sub")).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
-    return user
-
-
-def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
-    if not current_user.is_admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
-    return current_user
+    try:
+        token = authorization.split(" ")[1]
+    except IndexError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format"
+        )
+    try:
+        decoded_token = verify_id_token(token)
+        firebase_uid = decoded_token.get("uid")
+        user = db.query(User).filter(User.firebase_uid == firebase_uid).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        return user
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
+        )

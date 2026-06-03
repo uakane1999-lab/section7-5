@@ -1,20 +1,22 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
 
 # ── User ──────────────────────────────────────
 class UserCreate(BaseModel):
+    firebase_uid: str
     username: str
     email: EmailStr
-    password: str
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: UUID
     username: str
     email: str
-    is_admin: bool
+    avatar_url: Optional[str] = None
+    role: str
     created_at: datetime
 
     class Config:
@@ -22,41 +24,61 @@ class UserResponse(BaseModel):
 
 
 # ── Auth ──────────────────────────────────────
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
 class LoginRequest(BaseModel):
+    id_token: str
+
+
+class UserMeResponse(BaseModel):
+    id: UUID
+    username: str
     email: str
-    password: str
+    avatar_url: Optional[str]
+    role: str
+
+    class Config:
+        from_attributes = True
 
 
 # ── Recipe ────────────────────────────────────
 class RecipeCreate(BaseModel):
     title: str
-    description: Optional[str] = None
-    ingredients: List[str]
-    steps: List[str]
+    ingredients: str
+    instructions: str
+    image_url: Optional[str] = None
 
 
 class RecipeUpdate(BaseModel):
     title: Optional[str] = None
-    description: Optional[str] = None
-    ingredients: Optional[List[str]] = None
-    steps: Optional[List[str]] = None
+    ingredients: Optional[str] = None
+    instructions: Optional[str] = None
+    image_url: Optional[str] = None
 
 
-class RecipeResponse(BaseModel):
-    id: int
-    title: str
-    description: Optional[str]
-    ingredients: List[str]
-    steps: List[str]
-    author_id: int
-    author: UserResponse
-    created_at: datetime
-    updated_at: Optional[datetime]
+class RecipeUserResponse(BaseModel):
+    id: UUID
+    username: str
+    avatar_url: Optional[str]
 
     class Config:
         from_attributes = True
+
+
+class RecipeResponse(BaseModel):
+    id: UUID
+    title: str
+    ingredients: str
+    instructions: str
+    image_url: Optional[str]
+    user: RecipeUserResponse
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class RecipeListResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    recipes: list[RecipeResponse]
