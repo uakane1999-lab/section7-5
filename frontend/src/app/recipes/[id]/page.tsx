@@ -25,22 +25,22 @@ export default function RecipeDetailPage({
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
-  const [commentBody, setCommentBody] = useState("");
-  const [commentError, setCommentError] = useState("");
+  // const [commentBody, setCommentBody] = useState("");
+  // const [commentError, setCommentError] = useState("");
 
   // モックのコメント一覧
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      username: "ユーザーA",
-      body: "とても美味しそうですね！今度作ってみます。",
-    },
-    {
-      id: 2,
-      username: "ユーザーB",
-      body: "隠し味にみりんを入れるとさらにコクが出ました！",
-    },
-  ]);
+  // const [comments, setComments] = useState([
+  //   {
+  //     id: 1,
+  //     username: "ユーザーA",
+  //     body: "とても美味しそうですね！今度作ってみます。",
+  //   },
+  //   {
+  //     id: 2,
+  //     username: "ユーザーB",
+  //     body: "隠し味にみりんを入れるとさらにコクが出ました！",
+  //   },
+  // ]);
 
   // 現在のログインユーザー（モック：編集・削除ボタンのテスト用）
   // 投稿者と同じID「101」にしておけば、ボタンが表示されます
@@ -84,23 +84,23 @@ export default function RecipeDetailPage({
   };
 
   // コメント投稿処理
-  const handleCommentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!commentBody.trim()) {
-      setCommentError("コメントを入力してください");
-      return;
-    }
+  // const handleCommentSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!commentBody.trim()) {
+  //     setCommentError("コメントを入力してください");
+  //     return;
+  //   }
 
-    const newComment = {
-      id: Date.now(),
-      username: "自分",
-      body: commentBody,
-    };
+  //   const newComment = {
+  //     id: Date.now(),
+  //     username: "自分",
+  //     body: commentBody,
+  //   };
 
-    setComments([...comments, newComment]);
-    setCommentBody("");
-    setCommentError("");
-  };
+  //   setComments([...comments, newComment]);
+  //   setCommentBody("");
+  //   setCommentError("");
+  // };
 
   if (loading)
     return (
@@ -123,7 +123,7 @@ export default function RecipeDetailPage({
       <main style={styles.main}>
         {/* 戻るリンク */}
         <div style={styles.backNav}>
-          <Link href="/recipes" style={styles.backLink}>
+          <Link href="/" style={styles.backLink}>
             ← レシピ一覧に戻る
           </Link>
         </div>
@@ -174,11 +174,11 @@ export default function RecipeDetailPage({
         </div>
 
         {/* コメントセクション */}
-        <div style={styles.commentSection}>
-          <h3 style={styles.commentTitle}>💬 コメント ({comments.length})</h3>
+        {/* <div style={styles.commentSection}>
+          <h3 style={styles.commentTitle}>💬 コメント ({comments.length})</h3> */}
 
           {/* コメント一覧 */}
-          <div style={styles.commentList}>
+          {/* <div style={styles.commentList}>
             {comments.map((comment) => (
               <div key={comment.id} style={styles.commentCard}>
                 <p style={styles.commentUser}>
@@ -187,22 +187,22 @@ export default function RecipeDetailPage({
                 <p style={styles.commentText}>{comment.body}</p>
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* コメント投稿フォーム */}
-          <form onSubmit={handleCommentSubmit} style={styles.commentForm}>
+          {/* <form onSubmit={handleCommentSubmit} style={styles.commentForm}>
             <textarea
               placeholder="美味しい予感がしたらコメントを残そう！"
               value={commentBody}
               onChange={(e) => setCommentBody(e.target.value)}
               style={styles.textarea}
-            />
-            {commentError && <p style={styles.errorText}>{commentError}</p>}
-            <button type="submit" style={styles.submitBtn}>
+            /> */}
+            {/* {commentError && <p style={styles.errorText}>{commentError}</p>} */}
+            {/* <button type="submit" style={styles.submitBtn}>
               コメントを投稿する
             </button>
           </form>
-        </div>
+        </div> */}
       </main>
     </div>
   );
