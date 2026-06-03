@@ -1,11 +1,11 @@
-import { Token, Recipe, User, RecipeCreate } from "@/types";
+import { Recipe, User, RecipeCreate } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function request<T>(
   path: string,
   options: RequestInit = {},
-  token?: string
+  token?: string,
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -27,31 +27,34 @@ async function request<T>(
   return res.json();
 }
 
-// Auth
-export const authApi = {
-  register: (data: { username: string; email: string; password: string }) =>
-    request<User>("/auth/register", { method: "POST", body: JSON.stringify(data) }),
+// authApiは削除（Firebase Authで認証するため不要）
 
-  login: (email: string, password: string) =>
-    request<Token>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    }),
-};
-
-// Recipes
+// Recipes　id関連をstringに変更 + listにkeyword追加
 export const recipeApi = {
-  list: () => request<Recipe[]>("/recipes/"),
+  list: (keyword?: string) =>
+    request<Recipe[]>(
+      keyword
+        ? `/recipes/?keyword=${encodeURIComponent(keyword)}`
+        : "/recipes/",
+    ),
 
-  get: (id: number) => request<Recipe>(`/recipes/${id}`),
+  get: (id: string) => request<Recipe>(`/recipes/${id}`),
 
   create: (data: RecipeCreate, token: string) =>
-    request<Recipe>("/recipes/", { method: "POST", body: JSON.stringify(data) }, token),
+    request<Recipe>(
+      "/recipes/",
+      { method: "POST", body: JSON.stringify(data) },
+      token,
+    ),
 
-  update: (id: number, data: Partial<RecipeCreate>, token: string) =>
-    request<Recipe>(`/recipes/${id}`, { method: "PUT", body: JSON.stringify(data) }, token),
+  update: (id: string, data: Partial<RecipeCreate>, token: string) =>
+    request<Recipe>(
+      `/recipes/${id}`,
+      { method: "PUT", body: JSON.stringify(data) },
+      token,
+    ),
 
-  delete: (id: number, token: string) =>
+  delete: (id: string, token: string) =>
     request<void>(`/recipes/${id}`, { method: "DELETE" }, token),
 };
 

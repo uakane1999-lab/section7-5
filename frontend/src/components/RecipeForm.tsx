@@ -36,6 +36,8 @@ export default function RecipeForm({
       return;
     }
 
+    setError("");
+
     onSubmit({
       title,
       ingredients,
@@ -44,37 +46,96 @@ export default function RecipeForm({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <p>{error}</p>}
+    <form onSubmit={handleSubmit} style={formStyle}>
+      {error && <p style={errorStyle}>{error}</p>}
 
-      <div>
-        <label>タイトル</label>
+      <div style={fieldStyle}>
+        <label style={labelStyle}>タイトル</label>
         <input
+          style={inputStyle}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="例：オムライス"
         />
       </div>
 
-      <div>
-        <label>材料</label>
+      <div style={fieldStyle}>
+        <label style={labelStyle}>材料</label>
         <textarea
+          style={textareaStyle}
           value={ingredients}
           onChange={(e) => setIngredients(e.target.value)}
           placeholder="例：卵、ご飯、ケチャップ"
         />
       </div>
 
-      <div>
-        <label>作り方</label>
+      <div style={fieldStyle}>
+        <label style={labelStyle}>作り方</label>
         <textarea
+          style={textareaStyle}
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
           placeholder="例：材料を炒めて、卵で包む"
         />
       </div>
 
-      <button type="submit">{submitLabel}</button>
+      <button type="submit" style={submitButtonStyle}>
+        {submitLabel}
+      </button>
     </form>
   );
 }
+
+const formStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+  background: "white",
+  padding: 24,
+  borderRadius: 12,
+  boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+};
+
+const fieldStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 6,
+};
+
+const labelStyle: React.CSSProperties = {
+  fontWeight: "bold",
+  color: "#333",
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: "10px 12px",
+  border: "1px solid #ddd",
+  borderRadius: 8,
+  fontSize: 14,
+};
+
+const textareaStyle: React.CSSProperties = {
+  padding: "10px 12px",
+  border: "1px solid #ddd",
+  borderRadius: 8,
+  fontSize: 14,
+  minHeight: 100,
+};
+
+const submitButtonStyle: React.CSSProperties = {
+  padding: "12px",
+  background: "#4CAF50",
+  color: "white",
+  border: "none",
+  borderRadius: 8,
+  fontSize: 16,
+  fontWeight: "bold",
+  cursor: "pointer",
+};
+
+const errorStyle: React.CSSProperties = {
+  color: "#e53935",
+  background: "#ffebee",
+  padding: 10,
+  borderRadius: 8,
+};
