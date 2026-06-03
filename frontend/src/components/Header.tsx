@@ -13,17 +13,17 @@ export default function Header() {
       <h1>レシピ共有アプリ</h1>
 
       <nav>
-        <Link to="/">レシピ一覧</Link>
-        {token ? (
-          <>
-            <Link to="/recipes/new">投稿</Link>
-            <Link to="/mypage">マイページ</Link>
-            <button onClick={handleLogout}>ログアウト</button>
-          </>
-        ) : (
-          <Link to="/login">ログイン</Link>
-        )}
-      </nav>
+          <Link href="/">レシピ一覧</Link>  {/* ← href に変更！ */}
+          {token ? (
+            <>
+              <Link href="/recipes/new">投稿</Link>  {/* ← href に変更！ */}
+              <Link href="/mypage">マイページ</Link>  {/* ← href に変更！ */}
+              <button onClick={handleLogout}>ログアウト</button>
+            </>
+          ) : (
+            <Link href="/login">ログイン</Link>  {/* ← href に変更！ */}
+          )}
+        </nav>
     </header>
   );
 }

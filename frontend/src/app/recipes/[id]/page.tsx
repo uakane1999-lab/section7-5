@@ -1,349 +1,339 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Header from "@/components/Header";
-import { recipeApi } from "@/lib/api";
-import { useAuth } from "@/lib/auth-context";
-import { Recipe } from "@/types";
+import { useRouter } from "next/navigation";
+import Header from "../../../components/Header"; // 階層を合わせました
 
-// ---- コメントの型（バックエンド実装後に lib/api.ts へ移動） ----
-type Comment = {
-  id: number;
-  user_id: number;
-  username: string;
-  body: string;
-  created_at: string;
-};
+// ひとまず画面を動かすための仮の型定義（後でtypesからインポートしてもOK）
+interface Recipe {
+  id: string;
+  title: string;
+  ingredients: string;
+  instructions: string;
+  image_url: string | null;
+  user_id: string;
+}
 
-// ---- モックコメント（API疎通後に差し替え） ----
-const MOCK_COMMENTS: Comment[] = [
-  {
-    id: 1,
-    user_id: 201,
-    username: "たろう",
-    body: "美味しそう！作ってみます🍳",
-    created_at: "2026-06-02",
-  },
-  {
-    id: 2,
-    user_id: 202,
-    username: "はなこ",
-    body: "卵ふわふわになりました！",
-    created_at: "2026-06-03",
-  },
-];
-
-export default function RecipeDetailPage() {
-  const { id } = useParams<{ id: string }>(); // ← すでにstringなのでNumber()不要
+export default function RecipeDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const id = params.id; // URLからIDを取得
   const router = useRouter();
-  const { user } = useAuth();
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
-  const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
   const [commentBody, setCommentBody] = useState("");
   const [commentError, setCommentError] = useState("");
 
-  useEffect(() => {
-    recipeApi
-      .get(id) // ← Number(id) → id に変更
-      .then(setRecipe)
-      .finally(() => setLoading(false));
-  }, [id]);
+  // モックのコメント一覧
+  const [comments, setComments] = useState([
+    {
+      id: 1,
+      username: "ユーザーA",
+      body: "とても美味しそうですね！今度作ってみます。",
+    },
+    {
+      id: 2,
+      username: "ユーザーB",
+      body: "隠し味にみりんを入れるとさらにコクが出ました！",
+    },
+  ]);
 
-  // 修正後（Firebaseのtokenを取得して渡す）
-  const handleDelete = async () => {
-    if (!confirm("このレシピを削除しますか？")) return;
-    const token = await user?.getIdToken();
-    if (!token) return;
-    await recipeApi.delete(id, token); // ← Number(id) → id に変更
-    router.push("/recipes");
+  // 現在のログインユーザー（モック：編集・削除ボタンのテスト用）
+  // 投稿者と同じID「101」にしておけば、ボタンが表示されます
+  const currentUser = {
+    id: "101",
+    getIdToken: async () => "mock-firebase-token",
   };
 
-  // コメント投稿（モック：API疎通後に差し替え）
-  const handleCommentSubmit = () => {
+  useEffect(() => {
+    // APIが繋がるまでのダミーデータ
+    const mockData: Recipe = {
+      id: id,
+      title: id === "1" ? "ふわとろオムライス" : "美味しい料理",
+      ingredients: "卵 2個, ご飯 1膳, ケチャップ 適量, 玉ねぎ 1/4個",
+      instructions:
+        "1. 玉ねぎを炒める。 \n2. ご飯を加えてチキンライスを作る。 \n3. 卵をふわとろに焼いて上にのせる。",
+      image_url:
+        "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?q=80&w=600",
+      user_id: "101", // 投稿者ID
+    };
+
+    setRecipe(mockData);
+    setLoading(false);
+  }, [id]);
+
+  // レシピ削除処理（Firebaseトークン対応）
+  const handleDelete = async () => {
+    if (!confirm("このレシピを削除しますか？")) return;
+    try {
+      const token = await currentUser?.getIdToken();
+      if (!token) return;
+
+      console.log("Firebaseトークンを使って削除します:", token);
+      // await recipeApi.delete(id, token);
+
+      alert("レシピを削除しました（モック）");
+      router.push("/recipes");
+    } catch (error) {
+      console.error("削除エラー:", error);
+    }
+  };
+
+  // コメント投稿処理
+  const handleCommentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!commentBody.trim()) {
       setCommentError("コメントを入力してください");
       return;
     }
-    const newComment: Comment = {
-      id: comments.length + 1,
-      user_id: user?.uid ? 999 : 0,
-      username: user?.displayName ?? "ゲスト",
+
+    const newComment = {
+      id: Date.now(),
+      username: "自分",
       body: commentBody,
-      created_at: new Date().toISOString().slice(0, 10),
     };
+
     setComments([...comments, newComment]);
     setCommentBody("");
     setCommentError("");
   };
 
-  if (loading) return <p style={{ padding: 32 }}>読み込み中...</p>;
+  if (loading)
+    return (
+      <div style={{ padding: "40px", textAlign: "center" }}>読み込み中...</div>
+    );
   if (!recipe)
-    return <p style={{ padding: 32 }}>レシピが見つかりませんでした。</p>;
+    return (
+      <div style={{ padding: "40px", textAlign: "center" }}>
+        レシピが見つかりませんでした
+      </div>
+    );
 
-  const isOwner = user && recipe.user_id === user.uid;
+  // 投稿者本人かどうかの判定（user_idが一致するか）
+  const isOwner = currentUser && recipe.user_id === currentUser.id;
 
   return (
     <div style={styles.container}>
       <Header />
 
       <main style={styles.main}>
-        {/* 一覧に戻るリンク */}
-        <Link href="/recipes" style={styles.backLink}>
-          ← 一覧に戻る
-        </Link>
-
-        {/* レシピ画像 */}
-        <div style={styles.imageWrap}>
-          <img
-            src={
-              recipe.image_url ||
-              "https://images.unsplash.com/photo-1495521821757-a1efb6729352?q=80&w=800"
-            }
-            alt={recipe.title}
-            style={styles.image}
-          />
+        {/* 戻るリンク */}
+        <div style={styles.backNav}>
+          <Link href="/recipes" style={styles.backLink}>
+            ← レシピ一覧に戻る
+          </Link>
         </div>
 
-        {/* タイトル・メタ情報 */}
-        <div style={styles.card}>
-          <h1 style={styles.title}>{recipe.title}</h1>
-          <div style={styles.meta}>
-            <span>👤 ユーザー {recipe.user_id}</span>
-            <span>⏱️ 15分</span>
-            <span style={styles.tag}>#おすすめ</span>
-          </div>
-
-          {/* 投稿者本人のみ：編集・削除ボタン */}
-          {isOwner && (
-            <div style={styles.ownerActions}>
-              <Link href={`/recipes/${recipe.id}/edit`} style={styles.editBtn}>
-                ✏️ 編集
-              </Link>
-              <button onClick={handleDelete} style={styles.deleteBtn}>
-                🗑️ 削除
-              </button>
-            </div>
+        {/* レシピ詳細カード */}
+        <div style={styles.detailCard}>
+          {recipe.image_url && (
+            <img
+              src={recipe.image_url}
+              alt={recipe.title}
+              style={styles.recipeImg}
+            />
           )}
+
+          <div style={styles.cardBody}>
+            <div style={styles.headerRow}>
+              <h1 style={styles.title}>{recipe.title}</h1>
+              {/* 投稿者本人のみ編集・削除ボタンを表示 */}
+              {isOwner && (
+                <div style={styles.ownerActions}>
+                  <button style={styles.editBtn}>編集</button>
+                  <button onClick={handleDelete} style={styles.deleteBtn}>
+                    削除
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <p style={styles.meta}>
+              👤 投稿者: ユーザー {recipe.user_id} 　⏱️ 調理時間: 15分
+            </p>
+
+            {/* タグ表示 */}
+            <div style={styles.tags}>
+              <span style={styles.tag}>#卵</span>
+              <span style={styles.tag}>#洋食</span>
+              <span style={styles.tag}>#定番</span>
+            </div>
+
+            <hr style={styles.divider} />
+
+            <h3 style={styles.subTitle}>🍳 材料</h3>
+            <p style={styles.textBlock}>{recipe.ingredients}</p>
+
+            <h3 style={styles.subTitle}>📝 作り方</h3>
+            <p style={styles.textBlock}>{recipe.instructions}</p>
+          </div>
         </div>
 
-        {/* 材料 */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>🥕 材料</h2>
-          <p style={styles.body}>{recipe.ingredients}</p>
-        </div>
+        {/* コメントセクション */}
+        <div style={styles.commentSection}>
+          <h3 style={styles.commentTitle}>💬 コメント ({comments.length})</h3>
 
-        {/* 手順 */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>📋 作り方</h2>
-          {recipe.instructions
-            .split("\n")
-            .filter(Boolean)
-            .map((step, i) => (
-              <div key={i} style={styles.step}>
-                <span style={styles.stepNum}>{i + 1}</span>
-                <span>{step}</span>
+          {/* コメント一覧 */}
+          <div style={styles.commentList}>
+            {comments.map((comment) => (
+              <div key={comment.id} style={styles.commentCard}>
+                <p style={styles.commentUser}>
+                  <strong>{comment.username}</strong>
+                </p>
+                <p style={styles.commentText}>{comment.body}</p>
               </div>
             ))}
-        </div>
+          </div>
 
-        {/* コメント一覧 */}
-        <div style={styles.section}>
-          <h2 style={styles.sectionTitle}>💬 コメント</h2>
-          {comments.length === 0 ? (
-            <p style={styles.noComment}>まだコメントはありません。</p>
-          ) : (
-            comments.map((c) => (
-              <div key={c.id} style={styles.commentCard}>
-                <div style={styles.commentMeta}>
-                  <span style={styles.commentUser}>👤 {c.username}</span>
-                  <span style={styles.commentDate}>{c.created_at}</span>
-                </div>
-                <p style={styles.commentBody}>{c.body}</p>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* コメント投稿フォーム（ログイン時のみ） */}
-        {user ? (
-          <div style={styles.section}>
-            <h2 style={styles.sectionTitle}>コメントを投稿</h2>
-            {commentError && <p style={styles.error}>{commentError}</p>}
+          {/* コメント投稿フォーム */}
+          <form onSubmit={handleCommentSubmit} style={styles.commentForm}>
             <textarea
+              placeholder="美味しい予感がしたらコメントを残そう！"
               value={commentBody}
               onChange={(e) => setCommentBody(e.target.value)}
-              placeholder="コメントを入力..."
               style={styles.textarea}
             />
-            <button onClick={handleCommentSubmit} style={styles.submitBtn}>
-              送信
+            {commentError && <p style={styles.errorText}>{commentError}</p>}
+            <button type="submit" style={styles.submitBtn}>
+              コメントを投稿する
             </button>
-          </div>
-        ) : (
-          <p style={styles.loginPrompt}>
-            コメントするには{" "}
-            <Link href="/login" style={styles.loginLink}>
-              ログイン
-            </Link>{" "}
-            してください。
-          </p>
-        )}
+          </form>
+        </div>
       </main>
     </div>
   );
 }
 
-// ---- スタイル ----
-const styles: { [key: string]: React.CSSProperties } = {
+const styles = {
   container: {
     backgroundColor: "#fdfbf7",
     minHeight: "100vh",
     color: "#5c4033",
     fontFamily: "sans-serif",
   },
-  main: { maxWidth: "800px", margin: "0 auto", padding: "30px 20px" },
+  main: { maxWidth: "800px", margin: "0 auto", padding: "20px" },
+  backNav: { marginBottom: "20px" },
   backLink: {
-    display: "inline-block",
-    marginBottom: 20,
     color: "#8b7355",
     textDecoration: "none",
-    fontSize: 14,
+    fontWeight: "bold" as "bold",
   },
-  imageWrap: {
-    borderRadius: 16,
-    overflow: "hidden",
-    marginBottom: 24,
-    boxShadow: "0 4px 16px rgba(220,210,195,0.3)",
-  },
-  image: { width: "100%", height: 320, objectFit: "cover", display: "block" },
-  card: {
+  detailCard: {
     background: "#fff",
-    borderRadius: 16,
-    padding: "24px",
-    marginBottom: 24,
-    boxShadow: "0 4px 12px rgba(220,210,195,0.2)",
+    borderRadius: "16px",
+    overflow: "hidden",
+    boxShadow: "0 4px 16px rgba(220, 210, 195, 0.3)",
     border: "1px solid #f3ebe1",
+    marginBottom: "30px",
   },
-  title: { fontSize: 26, fontWeight: "bold", margin: "0 0 12px 0" },
-  meta: {
+  recipeImg: { width: "100%", height: "350px", objectFit: "cover" as "cover" },
+  cardBody: { padding: "30px" },
+  headerRow: {
     display: "flex",
-    gap: 16,
-    fontSize: 13,
-    color: "#888",
+    justifyContent: "space-between",
     alignItems: "center",
-    flexWrap: "wrap",
+    flexWrap: "wrap" as "wrap",
+    gap: "10px",
   },
+  title: { fontSize: "28px", color: "#5c4033", margin: 0 },
+  ownerActions: { display: "flex", gap: "10px" },
+  editBtn: {
+    background: "#e6c5a3",
+    color: "#fff",
+    border: "none",
+    padding: "8px 16px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontWeight: "bold" as "bold",
+  },
+  deleteBtn: {
+    background: "#e97474",
+    color: "#fff",
+    border: "none",
+    padding: "8px 16px",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontWeight: "bold" as "bold",
+  },
+  meta: { color: "#888", fontSize: "14px", marginTop: "10px" },
+  tags: { display: "flex", gap: "8px", marginTop: "10px" },
   tag: {
     background: "#f3ebe1",
     color: "#a08060",
-    borderRadius: 99,
-    padding: "2px 10px",
-    fontWeight: "bold",
-    fontSize: 12,
+    padding: "4px 10px",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: "bold" as "bold",
   },
-  ownerActions: { display: "flex", gap: 12, marginTop: 20 },
-  editBtn: {
-    padding: "8px 20px",
-    background: "#e6c5a3",
-    color: "#fff",
-    borderRadius: 8,
-    textDecoration: "none",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  deleteBtn: {
-    padding: "8px 20px",
-    background: "#f4a4a4",
-    color: "#fff",
+  divider: {
     border: "none",
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: "bold",
-    cursor: "pointer",
+    borderBottom: "1px solid #f3ebe1",
+    margin: "25px 0",
   },
-  section: {
+  subTitle: {
+    fontSize: "18px",
+    color: "#6e5643",
+    borderLeft: "4px solid #e6c5a3",
+    paddingLeft: "10px",
+    marginBottom: "12px",
+  },
+  textBlock: {
+    whiteSpace: "pre-wrap" as "pre-wrap",
+    lineHeight: "1.6",
+    color: "#5c4033",
+    marginBottom: "25px",
+  },
+  commentSection: {
     background: "#fff",
-    borderRadius: 16,
-    padding: "24px",
-    marginBottom: 20,
-    boxShadow: "0 4px 12px rgba(220,210,195,0.2)",
+    padding: "30px",
+    borderRadius: "16px",
+    boxShadow: "0 4px 16px rgba(220, 210, 195, 0.3)",
     border: "1px solid #f3ebe1",
   },
-  sectionTitle: {
-    fontSize: 16,
-    color: "#6e5643",
-    borderBottom: "2px solid #e6c5a3",
-    paddingBottom: 8,
-    marginBottom: 16,
-  },
-  body: { lineHeight: 1.8, fontSize: 15 },
-  step: {
+  commentTitle: { fontSize: "18px", color: "#5c4033", marginBottom: "20px" },
+  commentList: {
     display: "flex",
-    gap: 12,
-    alignItems: "flex-start",
-    marginBottom: 12,
-    fontSize: 15,
-  },
-  stepNum: {
-    minWidth: 28,
-    height: 28,
-    background: "#e6c5a3",
-    color: "#fff",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "bold",
-    fontSize: 13,
-    flexShrink: 0,
+    flexDirection: "column" as "column",
+    gap: "15px",
+    marginBottom: "25px",
   },
   commentCard: {
-    borderBottom: "1px solid #f3ebe1",
-    paddingBottom: 12,
-    marginBottom: 12,
+    background: "#fcfbfa",
+    padding: "12px 16px",
+    borderRadius: "8px",
+    border: "1px solid #f3ebe1",
   },
-  commentMeta: {
+  commentUser: { margin: "0 0 4px 0", fontSize: "14px", color: "#6e5643" },
+  commentText: { margin: 0, fontSize: "14px", color: "#5c4033" },
+  commentForm: {
     display: "flex",
-    justifyContent: "space-between",
-    marginBottom: 4,
+    flexDirection: "column" as "column",
+    gap: "10px",
   },
-  commentUser: { fontWeight: "bold", fontSize: 13, color: "#8b7355" },
-  commentDate: { fontSize: 12, color: "#aaa" },
-  commentBody: { fontSize: 14, lineHeight: 1.7, margin: 0 },
-  noComment: { color: "#aaa", fontSize: 14 },
   textarea: {
     width: "100%",
-    minHeight: 80,
-    padding: 12,
-    borderRadius: 8,
+    height: "80px",
+    padding: "12px",
+    borderRadius: "8px",
     border: "1px solid #dcd0c0",
-    fontSize: 14,
-    color: "#5c4033",
-    backgroundColor: "#fcfbfa",
-    resize: "vertical",
-    boxSizing: "border-box",
+    outline: "none",
+    resize: "none" as "none",
+    fontSize: "14px",
+    fontFamily: "sans-serif",
   },
   submitBtn: {
-    marginTop: 10,
-    padding: "10px 24px",
-    background: "#e6c5a3",
+    background: "#8b7355",
     color: "#fff",
     border: "none",
-    borderRadius: 8,
-    fontSize: 14,
-    fontWeight: "bold",
+    padding: "10px 20px",
+    borderRadius: "8px",
     cursor: "pointer",
+    fontWeight: "bold" as "bold",
+    alignSelf: "flex-end",
   },
-  error: { color: "#e07070", fontSize: 13, marginBottom: 8 },
-  loginPrompt: {
-    textAlign: "center",
-    color: "#888",
-    fontSize: 14,
-    padding: "20px 0",
-  },
-  loginLink: { color: "#e6a87c", fontWeight: "bold" },
+  errorText: { color: "#e97474", fontSize: "12px", margin: 0 },
 };
