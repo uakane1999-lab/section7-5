@@ -144,12 +144,17 @@ async def delete_recipe(
     if not recipe:
         raise HTTPException(status_code=404, detail="レシピが見つかりません")
 
-    # 認可チェック：本人のみ削除可
     if recipe.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="削除権限がありません")
 
-    if recipe.image_url:
-        delete_image(recipe.image_url)
+    # image_urlを先に保存しておく（db.delete後は参照できなくなるため）
+    image_url = recipe.image_url
 
+    # DBの削除を先に確定する
     db.delete(recipe)
     db.commit()
+
+    # DB確定後に画像を削除する
+    # （画像削除が失敗してもレシピは削除済みのため、ログだけ残して処理を止めない）
+    if image_url:
+        delete_image(image_url)
