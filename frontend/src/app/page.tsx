@@ -399,6 +399,16 @@ const styles = {
     minHeight: "100vh",
     color: "#5c4033",
     fontFamily: "sans-serif",
+
+    // 👇 ここから背景画像の指定を追加
+    backgroundImage: `
+          linear-gradient(rgba(253, 251, 247, 0.1), rgba(253, 251, 247, 0.8)),
+          url('/background.png')
+        `,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "no-repeat",
   },
   main: { maxWidth: "900px", margin: "0 auto", padding: "30px 20px" },
   searchSection: {
