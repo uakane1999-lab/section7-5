@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 async function request<T>(
   path: string,
   options: RequestInit = {},
-  token?: string
+  token?: string,
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -29,9 +29,14 @@ async function request<T>(
 
 // Auth
 export const authApi = {
-  register: (data: { username: string; email: string; password: string }) =>
-    request<User>("/auth/register", { method: "POST", body: JSON.stringify(data) }),
+  // 変更後：emailとfirebase_uidを削除し、id_tokenを受け取る形に修正
+  register: (data: { username: string; id_token: string }) =>
+    request<User>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
 
+  // ログインはそのまま（もしバックエンドから変更の指定がなければ一旦維持）
   login: (email: string, password: string) =>
     request<Token>("/auth/login", {
       method: "POST",
@@ -46,10 +51,18 @@ export const recipeApi = {
   get: (id: number) => request<Recipe>(`/recipes/${id}`),
 
   create: (data: RecipeCreate, token: string) =>
-    request<Recipe>("/recipes/", { method: "POST", body: JSON.stringify(data) }, token),
+    request<Recipe>(
+      "/recipes/",
+      { method: "POST", body: JSON.stringify(data) },
+      token,
+    ),
 
   update: (id: number, data: Partial<RecipeCreate>, token: string) =>
-    request<Recipe>(`/recipes/${id}`, { method: "PUT", body: JSON.stringify(data) }, token),
+    request<Recipe>(
+      `/recipes/${id}`,
+      { method: "PUT", body: JSON.stringify(data) },
+      token,
+    ),
 
   delete: (id: number, token: string) =>
     request<void>(`/recipes/${id}`, { method: "DELETE" }, token),
