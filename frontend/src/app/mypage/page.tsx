@@ -19,27 +19,54 @@ export default function MyPage() {
           marginBottom: 32,
         }}
       >
-        <h2 style={{ marginBottom: 12 }}>プロフィール</h2>
-        <p style={{ marginBottom: 8 }}>
-          <strong>ユーザー名：</strong>サンプルユーザー
-        </p>
-        <p style={{ marginBottom: 16 }}>
-          <strong>自己紹介：</strong>料理が好きです。
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <img
+            src="https://placehold.jp/120x120.png"
+            alt="プロフィール画像"
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "1px solid #ddd",
+            }}
+          />
 
-        <Link
-          href="/mypage/profile"
-          style={{
-            display: "inline-block",
-            background: "#333",
-            color: "white",
-            padding: "10px 16px",
-            borderRadius: 8,
-            textDecoration: "none",
-          }}
-        >
-          プロフィール設定
-        </Link>
+          <div style={{ flex: 1 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 12,
+              }}
+            >
+              <h2>プロフィール</h2>
+
+              <Link
+                href="/mypage/profile"
+                style={{
+                  display: "inline-block",
+                  background: "#333",
+                  color: "white",
+                  padding: "10px 16px",
+                  borderRadius: 8,
+                  textDecoration: "none",
+                }}
+              >
+                プロフィール設定
+              </Link>
+            </div>
+
+            <p style={{ marginBottom: 8 }}>
+              <strong>ユーザー名：</strong>サンプルユーザー
+            </p>
+
+            <p>
+              <strong>自己紹介：</strong>料理が好きです。
+            </p>
+          </div>
+        </div>
       </section>
 
       <section
