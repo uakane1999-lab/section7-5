@@ -73,7 +73,6 @@ export default function RecipeListPage() {
     recipe.title.toLowerCase().includes(searchWord.toLowerCase()),
   );
 
-  // ✕ ボタンを押した時のリセット処理
   const handleClear = () => {
     setSearchWord("");
   };
@@ -81,8 +80,8 @@ export default function RecipeListPage() {
   return (
     <div style={styles.container}>
       <Header />
+
       <main style={styles.main}>
-        {/* 検索エリア */}
         <div style={styles.searchSection}>
           <div style={styles.searchForm}>
             <input
@@ -92,8 +91,6 @@ export default function RecipeListPage() {
               onChange={(e) => setSearchWord(e.target.value)}
               style={styles.searchInput}
             />
-
-            {/* 文字が入力されている時だけ、虫眼鏡の左側に「✕」ボタンを配置 */}
             {searchWord && (
               <button
                 onClick={handleClear}
@@ -103,7 +100,6 @@ export default function RecipeListPage() {
                 ✕
               </button>
             )}
-
             <span style={styles.searchIcon}>🔍</span>
           </div>
           {searchWord && (
@@ -113,7 +109,6 @@ export default function RecipeListPage() {
           )}
         </div>
 
-        {/* レシピ一覧エリア */}
         <h3 style={styles.sectionTitle}>◆ みんなの新着レシピ</h3>
 
         <div style={styles.grid}>
@@ -153,7 +148,6 @@ export default function RecipeListPage() {
           </p>
         )}
 
-        {/* ページネーション */}
         <div style={styles.pagination}>
           <span style={styles.activePage}>1</span>
           <span style={styles.pageLink}>2</span>
@@ -187,7 +181,7 @@ const styles = {
   },
   searchInput: {
     flex: 1,
-    padding: "12px 70px 12px 16px", // 右側の余白を少し広げて、ボタンが被らないように調整
+    padding: "12px 70px 12px 16px",
     borderRadius: "8px",
     border: "1px solid #dcd0c0",
     fontSize: "16px",
@@ -195,10 +189,9 @@ const styles = {
     color: "#5c4033",
     outline: "none",
   },
-  // ✕ボタンのスタイルを追加（オシャレな茶色系の配色にマッチさせました）
   clearButton: {
     position: "absolute" as "absolute",
-    right: "42px", // 🔍の手前に配置
+    right: "42px",
     background: "none",
     border: "none",
     fontSize: "16px",

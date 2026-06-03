@@ -1,31 +1,33 @@
-from datetime import datetime, timedelta
-from typing import Optional
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from app.core.config import settings
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+import os
+import json
+import firebase_admin
+from firebase_admin import credentials, auth
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (
-        expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-
-
-def decode_token(token: str) -> Optional[dict]:
+def _initialize_firebase() -> firebase_admin.App:
+    """Firebase Admin SDKを初期化して返す"""
+    # すでに初期化済みなら再利用
+    if firebase_admin._apps:
+        return firebase_admin.get_app()
+    
+    credentials_json = os.environ.get("FIREBASE_CREDENTIALS_JSON")
+    if not credentials_json:
+        raise RuntimeError("FIREBASE_CREDENTIALS_JSON が環境変数に設定されていません")
+    
     try:
-        return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-    except JWTError:
-        return None
+        firebase_credentials = json.loads(credentials_json)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"FIREBASE_CREDENTIALS_JSON のJSON形式が不正です: {e}")
+    
+    cred = credentials.Certificate(firebase_credentials)
+    return firebase_admin.initialize_app(cred)
+
+
+def verify_id_token(token: str) -> dict:
+    """Firebase IDトークンを検証して、ユーザー情報を取得"""
+    _initialize_firebase()  # 呼び出し時に初期化（未初期化なら実行）
+    try:
+        decoded_token = auth.verify_id_token(token)
+        return decoded_token
+    except Exception as e:
+        raise Exception(f"Token verification failed: {str(e)}")
