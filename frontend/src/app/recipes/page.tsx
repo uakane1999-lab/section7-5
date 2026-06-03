@@ -14,9 +14,9 @@ export default function RecipesPage() {
 
   useEffect(() => {
     recipeApi
-      .list()
-      .then(setRecipes)
-      .finally(() => setLoading(false));
+  .list()
+  .then((data: any) => setRecipes(data.recipes))
+  .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <p style={{ padding: 32 }}>読み込み中...</p>;
@@ -60,7 +60,7 @@ export default function RecipesPage() {
                     </p>
                   )}
                   <p style={{ fontSize: 12, color: "#999", marginTop: 8 }}>
-                    by {r.author.username}
+                    by {r.user?.username}
                   </p>
                 </div>
               </Link>
