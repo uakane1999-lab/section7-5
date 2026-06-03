@@ -130,6 +130,7 @@ recipe-app/
 
 ## 企画・要件
 
+- [PRD](./docs/PRD.md)
 - [要件定義書](./docs/要件定義.md)
 
 ## 設計
@@ -142,6 +143,10 @@ recipe-app/
 ## テスト設計
 
 - [テスト設計書](./docs/テスト設計書.md)
+
+## その他
+
+- [Alembic & Docker マイグレーション トラブルシューティング](./docs/alembic_migration_notes.md)
 
 
 ## ブランチ運用ルール
