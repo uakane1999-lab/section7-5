@@ -1,7 +1,10 @@
+import logging
 import cloudinary
 import cloudinary.uploader
 from fastapi import HTTPException, UploadFile
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 # Cloudinary初期化
 cloudinary.config(
@@ -58,10 +61,12 @@ def delete_image(image_url: str) -> None:
         #     → recipes/abcdef
         parts = image_url.split("/upload/")
         if len(parts) < 2:
+            logger.warning(f"Cloudinary URLの形式が不正です: {image_url}")
             return
         public_id_with_ext = parts[1].split("/", 1)[-1]  # バージョン番号を除去
         public_id = public_id_with_ext.rsplit(".", 1)[0]  # 拡張子を除去
         cloudinary.uploader.destroy(public_id)
-    except Exception:
-        # 画像削除失敗はログだけ残して処理を止めない
-        pass
+        logger.info(f"Cloudinary画像を削除しました: {public_id}")
+    except Exception as e:
+        # 画像削除失敗はDBと整合性が取れない状態なのでERRORとして記録する
+        logger.error(f"Cloudinary画像の削除に失敗しました: {image_url}, error: {str(e)}")
