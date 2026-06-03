@@ -10,16 +10,34 @@ export default function MyPage() {
   return (
     <>
       <Header />
-      <main style={{ maxWidth: 800, margin: "0 auto", padding: 32 }}>
-        <h1 style={{ marginBottom: 24 }}>マイページ</h1>
+
+      <main
+        style={{
+          maxWidth: 900,
+          margin: "0 auto",
+          padding: "48px 20px",
+          backgroundColor: "#fdfbf7",
+          minHeight: "100vh",
+        }}
+      >
+        <h1
+          style={{
+            marginBottom: 24,
+            color: "#5c4033",
+            fontSize: 32,
+          }}
+        >
+          マイページ
+        </h1>
 
         <section
           style={{
             background: "#fff",
-            border: "1px solid #ddd",
-            borderRadius: 12,
+            border: "1px solid #f3ebe1",
+            borderRadius: 16,
             padding: 24,
             marginBottom: 32,
+            boxShadow: "0 4px 16px rgba(220, 210, 195, 0.3)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -31,7 +49,7 @@ export default function MyPage() {
                 height: 120,
                 borderRadius: "50%",
                 objectFit: "cover",
-                border: "1px solid #ddd",
+                border: "2px solid #f3ebe1",
               }}
             />
 
@@ -44,29 +62,39 @@ export default function MyPage() {
                   marginBottom: 12,
                 }}
               >
-                <h2>プロフィール</h2>
+                <h2
+                  style={{
+                    color: "#5c4033",
+                    margin: 0,
+                  }}
+                >
+                  プロフィール
+                </h2>
 
                 <Link
                   href="/mypage/profile"
                   style={{
                     display: "inline-block",
-                    background: "#333",
-                    color: "white",
+                    background: "#e6c5a3",
+                    color: "#fff",
                     padding: "10px 16px",
                     borderRadius: 8,
                     textDecoration: "none",
+                    fontWeight: "bold",
                   }}
                 >
                   プロフィール設定
                 </Link>
               </div>
 
-              <p style={{ marginBottom: 8 }}>
-                <strong>ユーザー名：</strong>サンプルユーザー
+              <p style={{ marginBottom: 8, color: "#5c4033" }}>
+                <strong>ユーザー名：</strong>
+                サンプルユーザー
               </p>
 
-              <p>
-                <strong>自己紹介：</strong>料理が好きです。
+              <p style={{ color: "#5c4033" }}>
+                <strong>自己紹介：</strong>
+                料理が好きです。
               </p>
             </div>
           </div>
@@ -75,9 +103,10 @@ export default function MyPage() {
         <section
           style={{
             background: "#fff",
-            border: "1px solid #ddd",
-            borderRadius: 12,
+            border: "1px solid #f3ebe1",
+            borderRadius: 16,
             padding: 24,
+            boxShadow: "0 4px 16px rgba(220, 210, 195, 0.3)",
           }}
         >
           <div
@@ -85,19 +114,27 @@ export default function MyPage() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: 16,
+              marginBottom: 20,
             }}
           >
-            <h2>自分の投稿一覧</h2>
+            <h2
+              style={{
+                color: "#5c4033",
+                margin: 0,
+              }}
+            >
+              自分の投稿一覧
+            </h2>
 
             <Link
               href="/recipes/new"
               style={{
-                background: "#333",
-                color: "white",
+                background: "#e6c5a3",
+                color: "#fff",
                 padding: "10px 16px",
                 borderRadius: 8,
                 textDecoration: "none",
+                fontWeight: "bold",
               }}
             >
               ＋ 新規投稿
@@ -109,27 +146,44 @@ export default function MyPage() {
               <div
                 key={recipe.id}
                 style={{
-                  border: "1px solid #eee",
-                  borderRadius: 10,
+                  border: "1px solid #f3ebe1",
+                  borderRadius: 12,
                   padding: 16,
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  backgroundColor: "#fcfbfa",
                 }}
               >
                 <div>
-                  <h3 style={{ marginBottom: 6 }}>{recipe.title}</h3>
-                  <p style={{ color: "#666" }}>{recipe.description}</p>
+                  <h3
+                    style={{
+                      marginBottom: 6,
+                      color: "#5c4033",
+                    }}
+                  >
+                    {recipe.title}
+                  </h3>
+
+                  <p
+                    style={{
+                      color: "#8b7355",
+                      margin: 0,
+                    }}
+                  >
+                    {recipe.description}
+                  </p>
                 </div>
 
                 <Link
                   href={`/recipes/${recipe.id}/edit`}
                   style={{
-                    border: "1px solid #333",
-                    color: "#333",
+                    border: "1px solid #dcd0c0",
+                    color: "#5c4033",
                     padding: "8px 14px",
                     borderRadius: 8,
                     textDecoration: "none",
+                    background: "#fff",
                   }}
                 >
                   編集
