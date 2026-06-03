@@ -1,100 +1,77 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from uuid import UUID
+from sqlalchemy import or_
 from typing import Optional
+import uuid
+
 from app.core.database import get_db
 from app.api.v1.deps import get_current_user
 from app.models.models import Recipe, User
-from app.schemas.schemas import RecipeResponse, RecipeListResponse
-from app.core.cloudinary import upload_image
+from app.schemas.schemas import (
+    RecipeResponse,
+    RecipeListResponse,
+    MyRecipeListResponse,
+)
+from app.services.cloudinary import upload_image, delete_image
 
-router = APIRouter(tags=["recipes"])
-
-
-@router.get("", response_model=RecipeListResponse)
-def list_recipes(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
-    """レシピ一覧取得（未認証でも可）"""
-    total = db.query(Recipe).count()
-    recipes = db.query(Recipe).offset(skip).limit(limit).all()
-    recipe_responses = []
-    for recipe in recipes:
-        recipe_responses.append({
-            "id": recipe.id,
-            "title": recipe.title,
-            "ingredients": recipe.ingredients,
-            "instructions": recipe.instructions,
-            "image_url": recipe.image_url,
-            "user": {
-                "id": recipe.user.id,
-                "username": recipe.user.username,
-                "avatar_url": recipe.user.avatar_url,
-            },
-            "created_at": recipe.created_at,
-            "updated_at": recipe.updated_at,
-        })
-    return {
-        "total": total,
-        "page": skip // limit + 1,
-        "limit": limit,
-        "recipes": recipe_responses,
-    }
+router = APIRouter()
 
 
-@router.get("/my", response_model=RecipeListResponse)
-def get_my_recipes(
+# ── 一覧取得 ──────────────────────────────────
+@router.get("/", response_model=RecipeListResponse)
+def list_recipes(
+    q: Optional[str] = Query(None, description="キーワード検索"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Recipe)
+
+    if q:
+        query = query.filter(
+            or_(
+                Recipe.title.ilike(f"%{q}%"),
+                Recipe.ingredients.ilike(f"%{q}%"),
+            )
+        )
+
+    total = query.count()
+    recipes = (
+        query.order_by(Recipe.created_at.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .all()
+    )
+
+    return {"total": total, "page": page, "limit": limit, "recipes": recipes}
+
+
+# ── 自分のレシピ一覧 ──────────────────────────
+@router.get("/my", response_model=MyRecipeListResponse)
+async def my_recipes(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """自分のレシピ一覧取得（認証必須）"""
-    recipes = db.query(Recipe).filter(Recipe.user_id == current_user.id).all()
-    total = len(recipes)
-    recipe_responses = []
-    for recipe in recipes:
-        recipe_responses.append({
-            "id": recipe.id,
-            "title": recipe.title,
-            "ingredients": recipe.ingredients,
-            "instructions": recipe.instructions,
-            "image_url": recipe.image_url,
-            "user": {
-                "id": recipe.user.id,
-                "username": recipe.user.username,
-                "avatar_url": recipe.user.avatar_url,
-            },
-            "created_at": recipe.created_at,
-            "updated_at": recipe.updated_at,
-        })
-    return {
-        "total": total,
-        "page": 1,
-        "limit": total,
-        "recipes": recipe_responses,
-    }
+    recipes = (
+        db.query(Recipe)
+        .filter(Recipe.user_id == current_user.id)
+        .order_by(Recipe.created_at.desc())
+        .all()
+    )
+    return {"total": len(recipes), "recipes": recipes}
 
 
+# ── 詳細取得 ──────────────────────────────────
 @router.get("/{recipe_id}", response_model=RecipeResponse)
-def get_recipe(recipe_id: UUID, db: Session = Depends(get_db)):
-    """レシピ詳細取得（未認証でも可）"""
+def get_recipe(recipe_id: uuid.UUID, db: Session = Depends(get_db)):
     recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if not recipe:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
-    return {
-        "id": recipe.id,
-        "title": recipe.title,
-        "ingredients": recipe.ingredients,
-        "instructions": recipe.instructions,
-        "image_url": recipe.image_url,
-        "user": {
-            "id": recipe.user.id,
-            "username": recipe.user.username,
-            "avatar_url": recipe.user.avatar_url,
-        },
-        "created_at": recipe.created_at,
-        "updated_at": recipe.updated_at,
-    }
+        raise HTTPException(status_code=404, detail="レシピが見つかりません")
+    return recipe
 
 
-@router.post("", response_model=RecipeResponse, status_code=status.HTTP_201_CREATED)
+# ── 新規作成 ──────────────────────────────────
+@router.post("/", response_model=RecipeResponse, status_code=201)
 async def create_recipe(
     title: str = Form(...),
     ingredients: str = Form(...),
@@ -103,11 +80,9 @@ async def create_recipe(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """レシピ新規投稿（認証必須）"""
     image_url = None
     if image:
-        file_bytes = await image.read()
-        image_url = upload_image(file_bytes)
+        image_url = await upload_image(image, folder="recipes")
 
     recipe = Recipe(
         title=title,
@@ -119,25 +94,13 @@ async def create_recipe(
     db.add(recipe)
     db.commit()
     db.refresh(recipe)
-    return {
-        "id": recipe.id,
-        "title": recipe.title,
-        "ingredients": recipe.ingredients,
-        "instructions": recipe.instructions,
-        "image_url": recipe.image_url,
-        "user": {
-            "id": recipe.user.id,
-            "username": recipe.user.username,
-            "avatar_url": recipe.user.avatar_url,
-        },
-        "created_at": recipe.created_at,
-        "updated_at": recipe.updated_at,
-    }
+    return recipe
 
 
+# ── 更新 ──────────────────────────────────────
 @router.put("/{recipe_id}", response_model=RecipeResponse)
 async def update_recipe(
-    recipe_id: UUID,
+    recipe_id: uuid.UUID,
     title: Optional[str] = Form(None),
     ingredients: Optional[str] = Form(None),
     instructions: Optional[str] = Form(None),
@@ -145,12 +108,13 @@ async def update_recipe(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """レシピ更新（本人のみ）"""
     recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if not recipe:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
+        raise HTTPException(status_code=404, detail="レシピが見つかりません")
+
+    # 認可チェック：本人のみ編集可
     if recipe.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="編集権限がありません")
 
     if title is not None:
         recipe.title = title
@@ -158,39 +122,34 @@ async def update_recipe(
         recipe.ingredients = ingredients
     if instructions is not None:
         recipe.instructions = instructions
+
     if image:
-        file_bytes = await image.read()
-        recipe.image_url = upload_image(file_bytes)
+        if recipe.image_url:
+            delete_image(recipe.image_url)
+        recipe.image_url = await upload_image(image, folder="recipes")
 
     db.commit()
     db.refresh(recipe)
-    return {
-        "id": recipe.id,
-        "title": recipe.title,
-        "ingredients": recipe.ingredients,
-        "instructions": recipe.instructions,
-        "image_url": recipe.image_url,
-        "user": {
-            "id": recipe.user.id,
-            "username": recipe.user.username,
-            "avatar_url": recipe.user.avatar_url,
-        },
-        "created_at": recipe.created_at,
-        "updated_at": recipe.updated_at,
-    }
+    return recipe
 
 
-@router.delete("/{recipe_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_recipe(
-    recipe_id: UUID,
+# ── 削除 ──────────────────────────────────────
+@router.delete("/{recipe_id}", status_code=204)
+async def delete_recipe(
+    recipe_id: uuid.UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """レシピ削除（本人のみ）"""
     recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if not recipe:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipe not found")
+        raise HTTPException(status_code=404, detail="レシピが見つかりません")
+
+    # 認可チェック：本人のみ削除可
     if recipe.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="削除権限がありません")
+
+    if recipe.image_url:
+        delete_image(recipe.image_url)
+
     db.delete(recipe)
     db.commit()
