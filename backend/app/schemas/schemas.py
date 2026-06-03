@@ -82,3 +82,4 @@ class RecipeListResponse(BaseModel):
     page: int
     limit: int
     recipes: list[RecipeResponse]
+    
