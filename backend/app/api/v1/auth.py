@@ -6,7 +6,7 @@ from app.core.security import verify_id_token
 from app.models.models import User
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 # リクエスト・レスポンスモデル
