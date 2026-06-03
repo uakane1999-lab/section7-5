@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,37 +28,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={container}>
-      <h1 style={{ marginBottom: 24 }}>🔐 ログイン</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          style={inputStyle}
-          type="email"
-          placeholder="メールアドレス"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          style={inputStyle}
-          type="password"
-          placeholder="パスワード"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        {error && <p style={{ color: "red", marginBottom: 8 }}>{error}</p>}
-        <button type="submit" style={btnStyle}>
-          ログイン
-        </button>
-      </form>
-      <p style={{ marginTop: 16, fontSize: 14 }}>
-        アカウントをお持ちでない方は{" "}
-        <Link href="/register" style={{ color: "#2196F3" }}>
-          新規登録
-        </Link>
-      </p>
-    </div>
+    <>
+      <Header />
+      <div style={container}>
+        <h1 style={{ marginBottom: 24 }}>🔐 ログイン</h1>
+        <form onSubmit={handleSubmit}>
+          <input
+            style={inputStyle}
+            type="email"
+            placeholder="メールアドレス"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            style={inputStyle}
+            type="password"
+            placeholder="パスワード"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          {error && <p style={{ color: "red", marginBottom: 8 }}>{error}</p>}
+          <button type="submit" style={btnStyle}>
+            ログイン
+          </button>
+        </form>
+        <p style={{ marginTop: 16, fontSize: 14 }}>
+          アカウントをお持ちでない方は{" "}
+          <Link href="/register" style={{ color: "#2196F3" }}>
+            新規登録
+          </Link>
+        </p>
+      </div>
+    </>
   );
 }
 

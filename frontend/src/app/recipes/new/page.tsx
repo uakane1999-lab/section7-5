@@ -4,6 +4,7 @@
 import { useRouter } from "next/navigation";
 import RecipeForm from "@/components/RecipeForm";
 import { recipeApi } from "@/lib/api";
+import Header from "@/components/Header";
 
 export default function RecipeCreatePage() {
   const router = useRouter();
@@ -31,10 +32,13 @@ export default function RecipeCreatePage() {
   };
 
   return (
-    <main style={{ maxWidth: 600, margin: "0 auto", padding: 32 }}>
-      <h1>レシピ投稿</h1>
+    <>
+      <Header />
+      <main style={{ maxWidth: 600, margin: "0 auto", padding: 32 }}>
+        <h1>レシピ投稿</h1>
 
-      <RecipeForm submitLabel="投稿する" onSubmit={handleCreate} />
-    </main>
+        <RecipeForm submitLabel="投稿する" onSubmit={handleCreate} />
+      </main>
+    </>
   );
 }

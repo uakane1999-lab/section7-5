@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import RecipeForm from "@/components/RecipeForm";
 import { recipeApi } from "@/lib/api";
+import Header from "@/components/Header";
 
 export default function RecipeEditPage() {
   const router = useRouter();
@@ -56,26 +57,29 @@ export default function RecipeEditPage() {
   };
 
   return (
-    <main style={{ maxWidth: 600, margin: "0 auto", padding: 32 }}>
-      <h1>レシピ編集</h1>
+    <>
+      <Header />
+      <main style={{ maxWidth: 600, margin: "0 auto", padding: 32 }}>
+        <h1>レシピ編集</h1>
 
-      <RecipeForm submitLabel="更新する" onSubmit={handleUpdate} />
+        <RecipeForm submitLabel="更新する" onSubmit={handleUpdate} />
 
-      <button
-        type="button"
-        onClick={handleDelete}
-        style={{
-          marginTop: 16,
-          background: "#e53935",
-          color: "white",
-          border: "none",
-          padding: "8px 16px",
-          borderRadius: 4,
-          cursor: "pointer",
-        }}
-      >
-        削除する
-      </button>
-    </main>
+        <button
+          type="button"
+          onClick={handleDelete}
+          style={{
+            marginTop: 16,
+            background: "#e53935",
+            color: "white",
+            border: "none",
+            padding: "8px 16px",
+            borderRadius: 4,
+            cursor: "pointer",
+          }}
+        >
+          削除する
+        </button>
+      </main>
+    </>
   );
 }
