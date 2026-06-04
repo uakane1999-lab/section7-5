@@ -184,12 +184,13 @@ class TestDeleteRecipe:
 # ── 認証モック用ヘルパー ──────────────────────
 def override_get_current_user(user: User):
     from app.api.v1.deps import get_current_user
-    from app.main import app
     app.dependency_overrides[get_current_user] = lambda: user
 
 
-def clear_overrides():
-    from app.main import app
+@pytest.fixture(autouse=True)
+def reset_dependency_overrides():
+    """各テスト後にdependency_overridesを確実にリセットする"""
+    yield
     app.dependency_overrides = {get_db: override_get_db}
 
 
@@ -202,7 +203,6 @@ class TestMyRecipes:
         data = response.json()
         assert data["total"] == 1
         assert data["recipes"][0]["title"] == "テスト親子丼"
-        clear_overrides()
 
     def test_未認証の場合は401になる(self):
         response = client.get("/api/v1/recipes/my")
@@ -226,7 +226,6 @@ class TestCreateRecipeWithAuth:
         assert data["title"] == "新しいレシピ"
         # user情報はuser.usernameで確認
         assert data["user"]["id"] == str(test_user.id)
-        clear_overrides()
 
     def test_必須項目のingredientsが欠けている場合は422になる(self, test_user):
         override_get_current_user(test_user)
@@ -238,7 +237,6 @@ class TestCreateRecipeWithAuth:
             },
         )
         assert response.status_code == 422
-        clear_overrides()
 
     def test_画像ありでレシピを作成できる(self, test_user):  # ← ここに追加
         override_get_current_user(test_user)
@@ -255,8 +253,6 @@ class TestCreateRecipeWithAuth:
             )
         assert response.status_code == 201
         assert response.json()["image_url"] == "https://res.cloudinary.com/test/image.jpg"
-        clear_overrides()
-
 
 # ── PUT /recipes/{id} 認証あり ────────────────
 class TestUpdateRecipeWithAuth:
@@ -268,7 +264,6 @@ class TestUpdateRecipeWithAuth:
         )
         assert response.status_code == 200
         assert response.json()["title"] == "更新後のタイトル"
-        clear_overrides()
 
     def test_他人のレシピは403になる(self, test_recipe):
         # DBセッション内でユーザーを作成しIDだけ取得
@@ -294,7 +289,6 @@ class TestUpdateRecipeWithAuth:
         )
         db.close()
         assert response.status_code == 403
-        clear_overrides()
 
 
 # ── DELETE /recipes/{id} 認証あり ─────────────
@@ -306,7 +300,6 @@ class TestDeleteRecipeWithAuth:
 
         response = client.get(f"/api/v1/recipes/{test_recipe.id}")
         assert response.status_code == 404
-        clear_overrides()
 
     def test_他人のレシピは403になる(self, test_recipe):
         db = TestingSessionLocal()
@@ -325,4 +318,3 @@ class TestDeleteRecipeWithAuth:
         response = client.delete(f"/api/v1/recipes/{test_recipe.id}")
         db.close()
         assert response.status_code == 403
-        clear_overrides()
